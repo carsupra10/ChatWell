@@ -1,3 +1,4 @@
+// server.js
 const http = require("http");
 const express = require("express");
 const socketio = require("socket.io");
@@ -13,27 +14,47 @@ app.use(express.static(gamedirectory));
 
 httpserver.listen(3000);
 
-var rooms = [];
-var usernames = [];
+// Data structure to store waiting users
+let waitingUsers = [];
 
 io.on('connection', function(socket){
 
-  socket.on("join", function(room, username){
-    if (username != ""){
-      rooms[socket.id] = room;
-      usernames[socket.id] = username;
-      socket.leaveAll();
-      socket.join(room);
-      io.in(room).emit("recieve", "Server : " + username + " has entered the chat.");
-      socket.emit("join", room);
+  socket.on("join", function(username){
+    if (username !== ""){
+      // Add the user to the list of waiting users
+      waitingUsers.push({ socket: socket, username: username });
+      
+      // Try to pair with another user if available
+      tryPairingUsers();
     }
-  })
+  });
 
-  socket.on("send", function(message){
-    io.in(rooms[socket.id]).emit("recieve", usernames[socket.id] +" : " + message);
-  })
+  socket.on("send", function(data){
+    const roomId = Object.keys(socket.rooms)[1]; // Get the room ID
+    io.to(roomId).emit("receive", data);
+  });
 
-  socket.on("recieve", function(message){
-    socket.emit("recieve", message);
-  })
-})
+  socket.on('disconnect', function(){
+    // Remove the user from the waiting list if they disconnect
+    const index = waitingUsers.findIndex(user => user.socket === socket);
+    if (index !== -1) {
+      waitingUsers.splice(index, 1);
+    }
+  });
+
+  function tryPairingUsers() {
+    if (waitingUsers.length >= 2) {
+      const user1 = waitingUsers.shift(); // Get the first waiting user
+      const user2 = waitingUsers.shift(); // Get the second waiting user
+
+      const roomId = user1.socket.id + '_' + user2.socket.id; // Generate a unique room ID
+
+      user1.socket.join(roomId);
+      user2.socket.join(roomId);
+
+      // Notify users that they are now connected
+      user1.socket.emit("receive", { message: "Server: You are now connected with a partner.", username: "Server" });
+      user2.socket.emit("receive", { message: "Server: You are now connected with a partner.", username: "Server" });
+    }
+  }
+});
