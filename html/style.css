@@ -44,3 +44,8 @@ input{
 #Title{
   font-size: 300%;
 }
+
+/* style.css */
+.overflow-auto {
+  overflow-y: auto;
+}
