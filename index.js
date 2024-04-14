@@ -1,4 +1,3 @@
-// server.js
 const http = require("http");
 const express = require("express");
 const socketio = require("socket.io");
@@ -34,13 +33,25 @@ io.on('connection', function(socket){
     io.to(roomId).emit("receive", data);
   });
 
-  socket.on('disconnect', function(){
+  socket.on("disconnect", function(){
     // Remove the user from the waiting list if they disconnect
     const index = waitingUsers.findIndex(user => user.socket === socket);
     if (index !== -1) {
       waitingUsers.splice(index, 1);
     }
   });
+
+  socket.on("disconnect-room", function() {
+    const roomId = Object.keys(socket.rooms)[1]; // Get the room ID
+    io.to(roomId).emit("chat-close"); // Notify the other user to close chat
+    io.to(roomId).emit("disconnect"); // Disconnect both users
+  });
+  
+  socket.on("refresh-page", function() {
+    const roomId = Object.keys(socket.rooms)[1]; // Get the room ID
+    io.to(roomId).emit("refresh-page"); // Notify the other user to refresh the page
+  });
+  
 
   function tryPairingUsers() {
     if (waitingUsers.length >= 2) {
