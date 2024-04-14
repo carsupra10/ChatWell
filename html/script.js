@@ -1,11 +1,10 @@
-// script.js
 var socket;
 var usernameInput;
 var chatRoom;
 var dingSound;
 var messages = [];
 var delay = true;
-var myUsername;
+var isConnected = false;
 
 function onload(){
   socket = io();
@@ -13,7 +12,18 @@ function onload(){
   chatRoom = document.getElementById("RoomID");
   dingSound = document.getElementById("Ding");
 
-  // Add event listener for the "Enter" key
+  // Retrieve username from local storage
+  const savedUsername = localStorage.getItem("username");
+  if (savedUsername) {
+    usernameInput.value = savedUsername;
+  }
+
+  // Add event listener for the Stop button
+  document.getElementById("StopButton").addEventListener("click", function() {
+    Stop();
+  });
+
+  // Add event listener for the Enter key
   document.getElementById("ComposedMessage").addEventListener("keypress", function(event) {
     if (event.keyCode === 13) { // Check if Enter key is pressed
       Send(); // Call the Send function
@@ -35,6 +45,16 @@ function onload(){
     }
     displayMessages();
   });
+
+  socket.on("chat-close", function() {
+    clearChat();
+    isConnected = false; // Update connection status
+  });
+
+  socket.on("disconnect", function() {
+    clearChat();
+    isConnected = false; // Update connection status
+  });
 }
 
 function Connect(){
@@ -43,8 +63,23 @@ function Connect(){
     return;
   }
 
-  myUsername = usernameInput.value;
-  socket.emit("join", myUsername);
+  socket.emit("join", usernameInput.value);
+  isConnected = true; // Update connection status
+}
+
+function Stop() {
+  if (isConnected) {
+    socket.emit("disconnect-room"); // Emit signal to disconnect both users
+    clearChat();
+    isConnected = false; // Update connection status
+    socket.emit("refresh-page"); // Emit signal to refresh the other user's page
+  }
+  
+  // Save username in local storage
+  localStorage.setItem("username", usernameInput.value);
+  
+  // Refresh the page
+  location.reload();
 }
 
 function Send(){
@@ -52,7 +87,7 @@ function Send(){
   if (delay && messageInput.value.replace(/\s/g, "") !== ""){
     delay = false;
     setTimeout(delayReset, 1000);
-    socket.emit("send", { message: messageInput.value, username: myUsername });
+    socket.emit("send", { message: messageInput.value, username: usernameInput.value });
     messageInput.value = "";
   }
 }
@@ -73,4 +108,9 @@ function displayMessages() {
 
   // Automatically scroll to the bottom of the chat container
   chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function clearChat() {
+  messages = [];
+  displayMessages();
 }
