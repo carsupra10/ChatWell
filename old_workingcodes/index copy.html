@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatWell-Beta</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .message-sent {
+            background-color: #DCF8C6;
+            text-align: right;
+        }
+        .message-received {
+            background-color: #FFFFFF;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="container mx-auto p-4">
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden w-full max-w-lg">
+        <div class="p-4 border-b">
+            <h1 class="text-xl font-bold">ChatWell</h1>
+        </div>
+        <div class="p-4 h-96 overflow-y-auto" id="messages" style="max-height: 500px;"></div>
+        <div class="p-4 border-t flex items-center">
+            <input id="messageInput" class="flex-1 p-2 border rounded-lg mr-2" type="text" placeholder="Type your message...">
+            <button id="sendButton" class="bg-blue-500 text-white p-2 rounded-lg">Send</button>
+            <button id="endButton" class="bg-red-500 text-white p-2 rounded-lg ml-2">End</button>
+        </div>
+    </div>
+    <button id="findButton" class="mt-4 bg-green-500 text-white p-2 rounded-lg">Find Partner</button>
+</div>
+
+<script>
+    const socket = io();
+
+    document.getElementById('sendButton').addEventListener('click', function() {
+        sendMessage();
+    });
+
+    document.getElementById('endButton').addEventListener('click', function() {
+        socket.emit('end');
+        document.getElementById('messages').innerHTML = '';
+    });
+
+    document.getElementById('findButton').addEventListener('click', function() {
+        socket.emit('find');
+    });
+
+    // Handle sending message when Enter key is pressed
+    document.getElementById('messageInput').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // Prevent default behavior (like newline)
+            sendMessage();
+        }
+    });
+
+    socket.on('message', function(message) {
+        addMessage('Partner', message, 'message-received');
+    });
+
+    socket.on('partnerDisconnected', function() {
+        document.getElementById('messages').innerHTML = '<div class="text-center text-red-500">Partner has disconnected.</div>';
+    });
+
+    socket.on('timeout', function() {
+        document.getElementById('messages').innerHTML = '<div class="text-center text-yellow-500">Connection timed out. Please find a new partner.</div>';
+    });
+
+    function sendMessage() {
+        const message = document.getElementById('messageInput').value;
+        if (message.trim() !== '') {
+            socket.emit('message', message);
+            addMessage('You', message, 'message-sent');
+            document.getElementById('messageInput').value = '';
+        }
+    }
+
+    function addMessage(sender, message, cssClass) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('p-2', 'rounded-lg', 'my-2', cssClass);
+        messageElement.innerText = `${sender}: ${message}`;
+        document.getElementById('messages').appendChild(messageElement);
+        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+    }
+</script>
+
+</body>
+</html>
