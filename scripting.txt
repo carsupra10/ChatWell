@@ -1,0 +1,27 @@
+// Set the custom message
+const customMessage = 'Hello, this';
+
+// Function to automate the chat
+function automateChat() {
+  // Automatically connect to a partner
+  document.getElementById('findButton').click();
+
+  // Wait for the connection to establish (you can adjust the timeout value)
+  setTimeout(() => {
+    // Send a custom message
+    document.getElementById('messageInput').value = customMessage;
+    document.getElementById('sendButton').click();
+
+    // Wait for a short period of time (you can adjust the timeout value)
+    setTimeout(() => {
+      // End the chat
+      document.getElementById('endButton').click();
+
+      // Loop again
+      automateChat();
+    }, 2000); // 2 seconds
+  }, 5000); // 5 seconds
+}
+
+// Start the loop
+automateChat();
