@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatWell-Beta</title>
-    <link rel="icon" href="./icon.jpg">
     <meta name="description" content="ChatWell-Beta: Connect with random chat partners in real-time.">
     <meta name="keywords" content="chat, random chat, real-time chat, ChatWell">
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
@@ -30,38 +29,33 @@
         }
 
         .header,
-        .input-wrapper {
+        .input {
             background-color: #ffffff;
             padding: 1rem;
-            position: sticky;
-            z-index: 10;
         }
 
         .header {
+            position: sticky;
             top: 0;
             left: 0;
             right: 0;
+            z-index: 10;
             border-bottom: 1px solid #e5e5e5;
         }
 
-        .input-wrapper {
-            position: relative;
+        .input {
+            position: sticky;
             bottom: 0;
             left: 0;
             right: 0;
             border-top: 1px solid #e5e5e5;
+            z-index: 10;
         }
 
         .content {
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow-y: hidden;
-        }
-
-        .messages-container {
-            overflow-y: auto;
-            flex-grow: 1;
         }
     </style>
 </head>
@@ -76,11 +70,11 @@
         </div>
     </div>
 
-    <div class="messages-container">
+    <div class="content flex-grow flex flex-col">
         <div class="messages" id="messages"></div>
     </div>
 
-    <div class="input-wrapper flex items-center">
+    <div class="input flex items-center">
         <input id="messageInput" class="flex-1 p-2 border rounded-lg mr-2" type="text" placeholder="Type your message...">
         <button id="sendButton" class="bg-blue-500 text-white p-2 rounded-lg">Send</button>
     </div>
@@ -140,7 +134,7 @@
 
         // Scroll messages to the bottom
         function scrollMessagesToBottom() {
-            const messagesContainer = document.querySelector('.messages-container');
+            const messagesContainer = document.getElementById('messages');
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
@@ -150,6 +144,14 @@
             scrollMessagesToBottom();
         });
         observer.observe(messagesContainer, { childList: true });
+
+        // Adjust input position with keyboard
+        window.addEventListener('resize', () => {
+            const messageInput = document.getElementById('messageInput');
+            if (window.innerHeight < 500) { // Assumed keyboard is open
+                messageInput.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
 
         // Scroll messages to the bottom initially
         scrollMessagesToBottom();

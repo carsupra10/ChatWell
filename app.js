@@ -9,6 +9,7 @@ const io = socketIo(server);
 
 const waitingList = [];
 const chatSessions = {};
+const connectedUsers = new Set();
 
 const SOCKET_TIMEOUT = 60000; // 60 seconds
 
@@ -17,7 +18,13 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
+  const logActiveUsers = () => {
+    console.log(`Active users: ${connectedUsers.size}`);
+  };
+
   console.log(`User connected: ${socket.id}`);
+  connectedUsers.add(socket.id);
+  logActiveUsers();
 
   let timeout;
 
@@ -43,6 +50,8 @@ io.on('connection', (socket) => {
     if (waitingIndex > -1) {
       waitingList.splice(waitingIndex, 1);
     }
+    connectedUsers.delete(userId);
+    logActiveUsers();
     socket.disconnect();
   };
 
@@ -56,7 +65,7 @@ io.on('connection', (socket) => {
     } else {
       waitingList.push(socket.id);
       tryMatchPartners();
-      io.to(socket.id).emit('message', 'You are added in the waiting list. Please wait for a partner to be assigned.');
+      io.to(socket.id).emit('message', 'You are added in the waiting list.');
     }
   });
 
