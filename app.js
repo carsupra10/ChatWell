@@ -13,6 +13,9 @@ const connectedUsers = new Set();
 
 const SOCKET_TIMEOUT = 60000; // 60 seconds
 
+// Serve static files from the root directory
+app.use(express.static(path.join(__dirname)));
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
