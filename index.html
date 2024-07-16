@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ChatWell-Beta: Random Chat, Omegle Alternative, Tamil Chat with Strangers</title>
+    <title>ChatWell-Beta: Free Random Chat, Tamil Chat with Strangers, Omegle Alternative</title>
     <link rel="icon" href="./icon.jpg">
-    <meta name="description" content="ChatWell-Beta: Connect with random chat partners in real-time. An alternative to Omegle for Tamil chat and anonymous conversations.">
+    <meta name="description" content="ChatWell-Beta: Connect with random chat partners in real-time. Free chat with strangers, Tamil chat, anonymous conversations, and an alternative to Omegle.">
     <meta name="keywords" content="chat, random chat, real-time chat, ChatWell, Omegle alternative, Tamil chat, anonymous chat">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://www.chatwell-beta.onrender.com/">
-    <meta property="og:title" content="ChatWell-Beta: Random Chat, Omegle Alternative, Tamil Chat with Strangers">
-    <meta property="og:description" content="ChatWell-Beta: Connect with random chat partners in real-time. An alternative to Omegle for Tamil chat and anonymous conversations.">
+    <meta property="og:title" content="ChatWell-Beta: Free Random Chat, Tamil Chat with Strangers, Omegle Alternative">
+    <meta property="og:description" content="ChatWell-Beta: Connect with random chat partners in real-time. Free chat with strangers, Tamil chat, anonymous conversations, and an alternative to Omegle.">
     <meta property="og:image" content="https://www.chatwell-beta.onrender.com/icon.jpg">
     <meta property="og:url" content="https://www.chatwell-beta.onrender.com/">
     <meta property="og:type" content="website">
@@ -87,14 +86,29 @@
         body {
             overflow-y: hidden;
         }
+
+        /* Adjusted styles for slogan */
+        .slogan {
+            font-size: 1.5rem; /* Adjust size as needed */
+            color: #6B7280; /* Adjust color as needed */
+        }
+
+        /* Hide slogan and footer on mobile and tablet screens */
+        @media (max-width: 768px) {
+            .hide-on-mobile {
+                display: none;
+            }
+        }
     </style>
 </head>
-
 <body class="flex flex-col h-screen">
 
     <div class="header flex items-center justify-between">
-        <h1 class="text-xl font-bold">ChatWell</h1>
         <div>
+            <h1 class="text-xl font-bold">ChatWell</h1>
+            <h2 class="slogan hide-on-mobile">Free Random Chat, Tamil Chat with Strangers, Omegle Alternative</h2>
+        </div>
+        <div >
             <button id="findButton" class="bg-green-500 text-white p-2 rounded-lg">Find Partner</button>
             <button id="endButton" class="bg-red-500 text-white p-2 rounded-lg">End</button>
         </div>
@@ -156,7 +170,7 @@
 
         function addMessage(sender, message, cssClass) {
             const messageElement = document.createElement('div');
-            messageElement.classList.add('p-2', 'rounded-lg', 'y-2', cssClass);
+            messageElement.classList.add('p-2', 'rounded-lg', 'my-2', cssClass);
             messageElement.innerText = `${sender}: ${message}`;
             document.getElementById('messages').appendChild(messageElement);
             scrollMessagesToBottom();
@@ -185,6 +199,12 @@
             document.querySelector('.content').style.height = `${height}px`;
         });
     </script>
-</body>
 
+    <div class="footer hide-on-mobile">
+        <a href="./about.html" class="text-blue-500 underline">About Us</a>
+        <a href="./privacy.html" class="text-blue-500 underline ml-4">Privacy Policy</a>
+        <a href="./terms.html" class="text-blue-500 underline ml-4">Terms of Service</a>
+    </div>
+
+</body>
 </html>
